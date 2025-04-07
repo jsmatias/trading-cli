@@ -1,0 +1,5 @@
+# compilation and binary files
+*.out
+
+# VS code configs
+.vscode/
