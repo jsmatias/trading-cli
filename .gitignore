@@ -3,3 +3,6 @@
 
 # VS code configs
 .vscode/
+
+# MacOS
+.DS_Store

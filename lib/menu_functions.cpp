@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../include/menu_functions.h"
+#include "menu_functions.h"
 
 /**
  * Prints a help message

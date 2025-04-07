@@ -1,6 +1,6 @@
 #include <iostream>
 #include "menu.h"
-#include "../include/menu_functions.h"
+#include "menu_functions.h"
 
 void printMenu ()
 {
