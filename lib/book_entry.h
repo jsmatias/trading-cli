@@ -1,6 +1,4 @@
-#ifndef BOOK_ENTRY_H
-#define BOOK_ENTRY_H
-
+#pragma once
 #include <string>
 
 enum class OrderType {bid, ask};
@@ -25,5 +23,3 @@ class OrderBookEntry
         std::string product;
         OrderType type;
 };
-
-#endif
