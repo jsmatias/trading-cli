@@ -1,17 +1,25 @@
 #pragma once
+#include <vector>
+#include "book_entry.h"
 
 class MerkelMain
 {
     public:
-        MerkelMain();
+        MerkelMain() = default;
+        /** Call this method to start the sim. */
         void init();
-        void printMenu();
-        int getUserChoice();
-        void processChoice(int choice);
-        void printHelp();
+
+    private:
+        std::vector<OrderBookEntry> book{};
+
+        void loadOrderBook();
         void printExchangeStats();
-        void makeAnOffer();
-        void makeABid();
+        void printHelp();
+        void printMenu();
         void printWallet();
+        void makeABid();
+        void makeAnOffer();
+        void processChoice(int choice);
         void goToNextTimeFrame();
+        int getUserChoice();
 };

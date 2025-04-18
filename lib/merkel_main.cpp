@@ -1,12 +1,15 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include "merkel_main.h"
+#include "book_entry.h"
+#include "csv_reader.h"\
 
-MerkelMain::MerkelMain(){};
 
 void MerkelMain::init()
 {
+    loadOrderBook();
     int choice;
     while (true)
     {
@@ -21,7 +24,13 @@ void MerkelMain::init()
     }
 };
 
-void MerkelMain::printMenu ()
+void MerkelMain::loadOrderBook()
+{
+    std::string fileName{"./data/book_of_orders.csv"};
+    book = CSVReader::readCSV(fileName);
+}
+
+void MerkelMain::printMenu()
 {
     std::cout << "1. Print help" << std::endl;
     std::cout << "2. Print exchange stats" << std::endl;
@@ -80,7 +89,7 @@ void MerkelMain::printHelp()
 }
 void MerkelMain::printExchangeStats()
 {
-    std::cout << "Some stats" << std::endl;
+    std::cout << "The book has " << book.size() << " entries." << std::endl;
 }
 void MerkelMain::makeAnOffer()
 {

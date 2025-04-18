@@ -17,3 +17,10 @@ OrderBookEntry::OrderBookEntry
     product{product}, 
     type{type}
 {}
+
+OrderType OrderBookEntry::stringToOrderBookType(const std::string& orderType)
+{
+    if (orderType == "bid") return OrderType::bid;
+    if (orderType == "ask") return OrderType::ask;
+    return OrderType::unknown;
+}
