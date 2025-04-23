@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "book_entry.h"
+#include "order_book.h"
 
 class MerkelMain
 {
@@ -10,9 +10,10 @@ class MerkelMain
         void init();
 
     private:
-        std::vector<OrderBookEntry> book{};
+        OrderBook book{"./data/book_of_orders.csv"};
+        std::string currentTime;
 
-        void loadOrderBook();
+        // void loadOrderBook();
         void printExchangeStats();
         void printHelp();
         void printMenu();
