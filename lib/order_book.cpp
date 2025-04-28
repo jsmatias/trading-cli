@@ -2,10 +2,14 @@
 #include "csv_reader.h"
 #include "order_book.h"
 
+#include <iostream>
+
 
 OrderBook::OrderBook(const std::string& filename)
 {
     orders = CSVReader::readCSV(filename);
+    // orders.push_back(CSVReader::stringToOBE(CSVReader::tokenise("2020/03/17 17:01:24.0,ETH/BTC,bid,0.02,7.44564869", ",")));
+
     std::sort (
         orders.begin(), orders.end(), 
         [](const OrderBookEntry& entryI, const OrderBookEntry& entryJ)
@@ -71,6 +75,28 @@ std::string OrderBook::getNextTime(const std::string& timestamp)
     return nextTimestamp;
 }
 
+std::string OrderBook::getPreviousTime(const std::string& timestamp)
+{
+    std::vector<OrderBookEntry> ordersSortedDescending = orders;
+    std::sort (
+        ordersSortedDescending.begin(), ordersSortedDescending.end(), 
+        [](const OrderBookEntry& entryI, const OrderBookEntry& entryJ)
+        {
+            return entryI.timestamp > entryJ.timestamp;
+        }
+    );
+    std::string prevTimestamp{ordersSortedDescending[0].timestamp};
+
+    for (const OrderBookEntry& e : ordersSortedDescending)
+    {
+        if (e.timestamp < timestamp) 
+        {
+            prevTimestamp = e.timestamp;
+            break;
+        }
+    }
+    return prevTimestamp;
+}
 
 double OrderBook::getHighPrice(const std::vector<OrderBookEntry>& orders)
 {
@@ -92,3 +118,31 @@ double OrderBook::getLowPrice(const std::vector<OrderBookEntry>& orders)
     return min;
 }
 
+double OrderBook::getClosePrice(const std::vector<OrderBookEntry>& orders)
+{
+    return orders[0].price;
+}
+        
+double OrderBook::getSimpleMovingAverage(
+    const OrderType& type, 
+    const std::string& product,
+    const std::string& timestamp,
+    const unsigned int& period
+)
+{
+    std::string currentTimestamp = timestamp;
+    std::vector<OrderBookEntry> ordersSubset;
+    double total{0.0};
+    uint i{0};
+    
+    do
+    {
+        ordersSubset = getOrders(type, product, currentTimestamp);
+        if (!ordersSubset.empty()) total += getClosePrice(ordersSubset);
+        else return NAN;
+        
+        currentTimestamp = getPreviousTime(currentTimestamp);
+        ++i;
+    } while (i < period);
+    return total / period;
+}

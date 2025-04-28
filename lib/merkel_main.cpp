@@ -36,6 +36,7 @@ void MerkelMain::printMenu()
     
     std::cout << "=========================" << std::endl;
     std::cout << "Current time: " << currentTime << std::endl;
+    std::cout << "Prev time: " << book.getPreviousTime(currentTime) << std::endl;
 }
 
 int MerkelMain::getUserChoice()
@@ -85,22 +86,40 @@ void MerkelMain::printHelp()
 }
 void MerkelMain::printExchangeStats()
 {
+    std::vector<OrderBookEntry> askEntries;
+    std::vector<OrderBookEntry> bidEntries;
+    double minAsk;
+    double maxBid;
+
     for (const std::string& prod : book.getKnownProducts())
     {
+        askEntries = book.getOrders(OrderType::ask, prod, currentTime);
+        bidEntries = book.getOrders(OrderType::bid, prod, currentTime);
 
-        std::vector<OrderBookEntry> askEntries = book.getOrders(OrderType::ask, prod, currentTime);
-        std::vector<OrderBookEntry> bidEntries = book.getOrders(OrderType::bid, prod, currentTime);
-        double minAsk = OrderBook::getLowPrice(askEntries);
-        double maxBid = OrderBook::getHighPrice(bidEntries);
+        std::cout << " ====== Product: " << prod << std::endl;
+        if (!askEntries.empty())
+        {
+            minAsk = OrderBook::getLowPrice(askEntries);
+            std::cout << "  Asks seen: " << askEntries.size() << std::endl;
+            std::cout << "  Max ask: " << OrderBook::getHighPrice(askEntries) << std::endl;
+            std::cout << "  Min ask: " << minAsk << std::endl;
+            std::cout << "  Close ask: " << OrderBook::getClosePrice(askEntries) << std::endl;
+            std::cout << "  SMA-7 ask: " << book.getSimpleMovingAverage(OrderType::ask, prod, currentTime, 7) << std::endl;
+        }
+        else std::cout << "  No ask prices..." << std::endl;
 
-        std::cout << "Product: " << prod << std::endl;
-        std::cout << "Asks seen: " << askEntries.size() << std::endl;
-        std::cout << "Max ask: " << OrderBook::getHighPrice(askEntries) << std::endl;
-        std::cout << "Min ask: " << minAsk << std::endl;
-        std::cout << "Bids seen: " << bidEntries.size() << std::endl;
-        std::cout << "Max bib: " << maxBid << std::endl;
-        std::cout << "Min bid: " << OrderBook::getLowPrice(bidEntries) << std::endl;
-        std::cout << "Spread: " << minAsk - maxBid << std::endl;
+        if (!bidEntries.empty())
+        {
+            maxBid = OrderBook::getHighPrice(bidEntries);
+            std::cout << "  Bids seen: " << bidEntries.size() << std::endl;
+            std::cout << "  Max bib: " << maxBid << std::endl;
+            std::cout << "  Min bid: " << OrderBook::getLowPrice(bidEntries) << std::endl;
+            std::cout << "  Close bid: " << OrderBook::getClosePrice(bidEntries) << std::endl;
+            std::cout << "  SMA-7 bid: " << book.getSimpleMovingAverage(OrderType::bid, prod, currentTime, 7) << std::endl;
+        }
+        else std::cout << "  No bid prices..." << std::endl;
+        
+        if (!bidEntries.empty() && !askEntries.empty()) std::cout << "  Spread: " << minAsk - maxBid << std::endl;
     }
 }
 void MerkelMain::makeAnOffer()
