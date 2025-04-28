@@ -55,10 +55,20 @@ class OrderBook
         );
 
         void insertOrder(const OrderBookEntry& order);
-        static bool comparedByTimestamp(const OrderBookEntry& e1, const OrderBookEntry& e2)
+        static bool compareByTimestamp(const OrderBookEntry& e1, const OrderBookEntry& e2)
         {
             return e1.timestamp < e2.timestamp;
         };
+        static bool compareByPriceAsc(const OrderBookEntry& e1, const OrderBookEntry& e2)
+        {
+            return e1.price < e2.price;
+        };
+        static bool compareByPriceDesc(const OrderBookEntry& e1, const OrderBookEntry& e2)
+        {
+            return e1.price > e2.price;
+        };
+
+        std::vector<OrderBookEntry> matchAsksToBids(const std::string& product, const std::string& timestamp);
 
     private:
         std::vector<OrderBookEntry> orders;

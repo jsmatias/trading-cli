@@ -199,5 +199,20 @@ void MerkelMain::printWallet()
 }
 void MerkelMain::goToNextTimeFrame()
 {
+    std::cout << "Going to next time frame..." << std::endl;
+    
+    std::cout << "matching ..." << std::endl;
+    std::vector<OrderBookEntry> sales;
+    
+    for (const std::string& p : book.getKnownProducts())
+    {
+        sales = book.matchAsksToBids(p, currentTime);
+        std::cout << "Sales: " << sales.size() << std::endl;
+        for (const OrderBookEntry& sale : sales) 
+        {
+            std::cout << "Sale price: " << sale.price << " amount " << sale.amount << std::endl;
+        };
+    };
+    
     currentTime = book.getNextTime(currentTime);
 }

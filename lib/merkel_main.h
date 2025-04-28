@@ -10,10 +10,9 @@ class MerkelMain
         void init();
 
     private:
-        OrderBook book{"./data/book_of_orders.csv"};
+        OrderBook book{"./data/test.csv"};
         std::string currentTime;
 
-        // void loadOrderBook();
         void printExchangeStats();
         void printHelp();
         void printMenu();

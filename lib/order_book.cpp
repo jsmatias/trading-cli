@@ -8,7 +8,6 @@
 OrderBook::OrderBook(const std::string& filename)
 {
     orders = CSVReader::readCSV(filename);
-    // orders.push_back(CSVReader::stringsToOBE(CSVReader::tokenise("2020/03/17 17:01:24.0,ETH/BTC,bid,0.02,7.44564869", ",")));
 
     std::sort (
         orders.begin(), orders.end(), 
@@ -150,5 +149,69 @@ double OrderBook::getSimpleMovingAverage(
 void OrderBook::insertOrder(const OrderBookEntry& order)
 {
     orders.push_back(order);
-    std::sort(orders.begin(), orders.end(), OrderBook::comparedByTimestamp);
+    std::sort(orders.begin(), orders.end(), OrderBook::compareByTimestamp);
+}
+
+std::vector<OrderBookEntry> OrderBook::matchAsksToBids(
+    const std::string& product, 
+    const std::string& timestamp
+){
+    // asks = orderbook.asks in this timeframe
+    std::vector<OrderBookEntry> asks = getOrders(OrderType::ask, product, timestamp);
+    // bids = orderbook.bids in this timeframe
+    std::vector<OrderBookEntry> bids = getOrders(OrderType::bid, product, timestamp);
+
+    std::vector<OrderBookEntry> sales;
+
+    // sort asks lowest first
+    std::sort(asks.begin(), asks.end(), compareByPriceAsc);
+    // sort bids highest first
+    std::sort(bids.begin(), bids.end(), compareByPriceDesc);
+
+    for (OrderBookEntry ask : asks) 
+    {
+        for (OrderBookEntry bid : bids) 
+        {
+            if (bid.price >= ask.price) // we have a match
+            {   
+                if (bid.amount == ask.amount) // bid completely clears ask
+                {
+                    OrderBookEntry sale = OrderBookEntry
+                    {
+                        ask.price, ask.amount, timestamp, product, OrderType::sale
+                    };    
+                    sales.push_back(sale);
+                    bid.amount = 0.0;
+                    ask.amount = 0.0;
+                    break;
+                }; 
+                
+                if (bid.amount > ask.amount) // ask is completely gone slice the bid
+                {
+                    OrderBookEntry sale = OrderBookEntry
+                    {
+                        ask.price, ask.amount, timestamp, product, OrderType::sale
+                    };    
+                    sales.push_back(sale);
+                    bid.amount -= ask.amount;
+                    ask.amount = 0.0;
+                    break;
+                };
+                
+                if (bid.amount < ask.amount) // bid is completely gone, slice the ask
+                {
+                    OrderBookEntry sale = OrderBookEntry
+                    {
+                        ask.price, bid.amount, timestamp, product, OrderType::sale
+                    };    
+                    sales.push_back(sale);
+                    bid.amount = 0;
+                    ask.amount -= bid.amount;
+                    continue;
+                };
+            }   
+        };
+        
+    };
+    return sales;
 }
