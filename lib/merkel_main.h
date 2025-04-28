@@ -19,7 +19,7 @@ class MerkelMain
         void printMenu();
         void printWallet();
         void makeABid();
-        void makeAnOffer();
+        void makeAnAsk();
         void processChoice(int choice);
         void goToNextTimeFrame();
         int getUserChoice();

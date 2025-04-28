@@ -42,9 +42,19 @@ void MerkelMain::printMenu()
 int MerkelMain::getUserChoice()
 {
     int choice;
+    std::string line;
     std::cout << "Type in 1-6" << std::endl;
     std::cout << ">> ";
-    std::cin >> choice;
+    getline(std::cin, line);
+    try
+    {
+        choice = std::stoi(line);
+    }
+    catch (const std::exception& e)
+    {
+        return 0;
+    }
+    std::cout << "You chose option: " << choice << std::endl;
     return choice;
 }
 
@@ -59,7 +69,7 @@ void MerkelMain::processChoice(int choice)
             printExchangeStats();
             break;
         case 3:
-            makeAnOffer();
+            makeAnAsk();
             break;
         case 4:
             makeABid();
@@ -122,13 +132,66 @@ void MerkelMain::printExchangeStats()
         if (!bidEntries.empty() && !askEntries.empty()) std::cout << "  Spread: " << minAsk - maxBid << std::endl;
     }
 }
-void MerkelMain::makeAnOffer()
+void MerkelMain::makeAnAsk()
 {
-    std::cout << "Place an offer." << std::endl;
+    std::cout << "Make an ask - enter the amount: product, price, amount, eg ETH/BTC,200,0.5" << std::endl;
+    std::string input;
+    std::getline(std::cin, input);
+
+    std::vector<std::string> tokens = CSVReader::tokenise(input, ",");
+    if (tokens.size() != 3) 
+    {
+        std::cout << "Invalid number of tokens! ";
+        std::cout << "Make sure your input has product,price and amount separated by commas." << std::endl;
+        return;
+    }
+    try
+    {
+        OrderBookEntry obe{CSVReader::stringsToOBE(
+            tokens[1],
+            tokens[2],
+            currentTime, 
+            tokens[0],
+            OrderType::ask
+        )};
+        book.insertOrder(obe);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return;
+    }
+
 }
 void MerkelMain::makeABid()
 {
-    std::cout << "Place a bid" << std::endl;
+    std::cout << "Make an bid - enter the amount: product, price, amount, eg ETH/BTC,200,0.5" << std::endl;
+    std::string input;
+    std::getline(std::cin, input);
+
+    std::vector<std::string> tokens = CSVReader::tokenise(input, ",");
+    if (tokens.size() != 3) 
+    {
+        std::cout << "Invalid number of tokens! ";
+        std::cout << "Make sure your input has product,price and amount separated by commas." << std::endl;
+        return;
+    }
+    try
+    {
+        OrderBookEntry obe{CSVReader::stringsToOBE(
+            tokens[1],
+            tokens[2],
+            currentTime, 
+            tokens[0],
+            OrderType::bid
+        )};
+        book.insertOrder(obe);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return;
+    }
 }
 void MerkelMain::printWallet()
 {

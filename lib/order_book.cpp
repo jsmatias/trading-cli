@@ -1,14 +1,14 @@
 #include <map>
+#include <iostream>
+#include <algorithm>
+
 #include "csv_reader.h"
 #include "order_book.h"
-
-#include <iostream>
-
 
 OrderBook::OrderBook(const std::string& filename)
 {
     orders = CSVReader::readCSV(filename);
-    // orders.push_back(CSVReader::stringToOBE(CSVReader::tokenise("2020/03/17 17:01:24.0,ETH/BTC,bid,0.02,7.44564869", ",")));
+    // orders.push_back(CSVReader::stringsToOBE(CSVReader::tokenise("2020/03/17 17:01:24.0,ETH/BTC,bid,0.02,7.44564869", ",")));
 
     std::sort (
         orders.begin(), orders.end(), 
@@ -145,4 +145,10 @@ double OrderBook::getSimpleMovingAverage(
         ++i;
     } while (i < period);
     return total / period;
+}
+
+void OrderBook::insertOrder(const OrderBookEntry& order)
+{
+    orders.push_back(order);
+    std::sort(orders.begin(), orders.end(), OrderBook::comparedByTimestamp);
 }

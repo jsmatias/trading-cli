@@ -54,6 +54,12 @@ class OrderBook
             const unsigned int& period
         );
 
+        void insertOrder(const OrderBookEntry& order);
+        static bool comparedByTimestamp(const OrderBookEntry& e1, const OrderBookEntry& e2)
+        {
+            return e1.timestamp < e2.timestamp;
+        };
+
     private:
         std::vector<OrderBookEntry> orders;
 };

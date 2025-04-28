@@ -18,7 +18,7 @@ std::vector<OrderBookEntry> CSVReader::readCSV(const std::string& fileName)
     {
         try
         {
-            orders.push_back(stringToOBE(tokenise(line, ",")));
+            orders.push_back(stringsToOBE(tokenise(line, ",")));
         }
         catch(const std::exception& e)
         {   
@@ -51,7 +51,7 @@ std::vector<std::string> CSVReader::tokenise(const std::string& line, const char
     return tokens;
 }
 
-OrderBookEntry CSVReader::stringToOBE(const std::vector<std::string>& tokens)
+OrderBookEntry CSVReader::stringsToOBE(const std::vector<std::string>& tokens)
 {
     std::string timestamp;
     std::string product;
@@ -60,7 +60,7 @@ OrderBookEntry CSVReader::stringToOBE(const std::vector<std::string>& tokens)
 
     if (tokens.size() != 5)
     {
-        std::cerr << "CSVReader::stringToOBE - Invalid data format" << std::endl;
+        std::cerr << "CSVReader::stringsToOBE - Invalid data format" << std::endl;
         throw std::exception{};
     }
 
@@ -85,6 +85,37 @@ OrderBookEntry CSVReader::stringToOBE(const std::vector<std::string>& tokens)
         timestamp,
         product,
         type  
+    };
+    return obe;
+}
+
+OrderBookEntry CSVReader::stringsToOBE(
+    std::string price,
+    std::string amount,
+    std::string timestamp,
+    std::string product,
+    OrderType orderType
+)
+{
+    double priceDouble, amountDouble;
+
+    try 
+    {
+        priceDouble = std::stod(price); 
+        amountDouble = std::stod(amount); 
+    }
+    catch(const std::exception& e)
+    {
+        std::cout << "CSVReader::stringsToOBE Bad double: " << price << std::endl;
+        std::cout << "CSVReader::stringsToOBE Bad double: " << amount << std::endl;
+        throw;
+    }
+    OrderBookEntry obe {
+        priceDouble,
+        amountDouble,
+        timestamp,
+        product,
+        orderType
     };
     return obe;
 }
