@@ -1,21 +1,15 @@
 #include <iostream>
-#include "../include/menu.h"
+#include <string>
+#include <vector>
+
+#include "../lib/merkel_main.h"
+#include "../lib/book_entry.h"
+
+#include "../lib/wallet.h"
 
 int main()
 {
-    int choice;
-    while (true)
-    {
-        std::cout << "\033[2J\033[1;1H";
-        std::cout << "Get ready to start trading!" << std::endl;
-        printMenu();
-        choice = getUserChoice();
-        processChoice(choice);
-        
-        std::cout << "Press Enter to continue...";
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
-        std::cin.get();
-    }
-
+    MerkelMain app{};
+    app.init();
     return 0;
 }

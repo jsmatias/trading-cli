@@ -3,3 +3,9 @@
 
 # VS code configs
 .vscode/
+
+# MacOS
+.DS_Store
+
+# assignments
+assignments/
