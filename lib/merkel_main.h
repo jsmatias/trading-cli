@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
+
 #include "order_book.h"
+#include "wallet.h"
 
 class MerkelMain
 {
@@ -10,9 +12,6 @@ class MerkelMain
         void init();
 
     private:
-        OrderBook book{"./data/test.csv"};
-        std::string currentTime;
-
         void printExchangeStats();
         void printHelp();
         void printMenu();
@@ -22,4 +21,8 @@ class MerkelMain
         void processChoice(int choice);
         void goToNextTimeFrame();
         int getUserChoice();
+        
+        OrderBook book{"./data/test.csv"};
+        Wallet wallet;
+        std::string currentTime;
 };

@@ -1,4 +1,7 @@
 # Trading CLI 
-This is simple CLI to simulate a system to manage a portfolio and place trading orders
+This is simple CLI to a trading simulate a system to manage a portfolio and place trading orders.
 
-Note: It's an experimental code only! It's not connected to any broker. 
+## Install
+
+**MacOS**
+clang++ -std=c++20 -o trading_cli.out src/main.cpp lib/*.cpp

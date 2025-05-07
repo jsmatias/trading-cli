@@ -3,6 +3,8 @@
 
 enum class OrderType {bid, ask, sale, unknown};
 
+std::ostream& operator<<(std::ostream& os, const OrderType& orderType);
+
 class OrderBookEntry
 {
     public:
