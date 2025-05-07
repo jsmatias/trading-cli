@@ -195,7 +195,15 @@ void MerkelMain::makeABid()
             tokens[0],
             OrderType::bid
         )};
-        book.insertOrder(obe);
+        if (wallet.canFulfillOrder(obe)) 
+        {
+            std::cout << "Wallet has enough funds." << std::endl;
+            book.insertOrder(obe);
+        }
+        else 
+        {
+            std::cout << "Wallet has insufficient funds." << std::endl;
+        }
     }
     catch(const std::exception& e)
     {
@@ -205,7 +213,7 @@ void MerkelMain::makeABid()
 }
 void MerkelMain::printWallet()
 {
-    std::cout << "My wallet" << std::endl;
+    std::cout << wallet << std::endl;
 }
 void MerkelMain::goToNextTimeFrame()
 {

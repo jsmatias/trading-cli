@@ -50,7 +50,7 @@ bool Wallet::canFulfillOrder(OrderBookEntry order)
     }
     if (order.type == OrderType::bid) 
     {
-        currency = currencyPair[0];
+        currency = currencyPair[1];
         amount = order.amount * order.price;
         std::cout << "Wallet::canFulfillOrder - bid: ";
     }
