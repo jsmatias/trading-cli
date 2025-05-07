@@ -70,6 +70,8 @@ class OrderBook
 
         std::vector<OrderBookEntry> matchAsksToBids(const std::string& product, const std::string& timestamp);
 
+        friend std::ostream& operator<<(std::ostream& os, OrderBook orderBook);
+
     private:
         std::vector<OrderBookEntry> orders;
 };

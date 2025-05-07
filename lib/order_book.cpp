@@ -156,11 +156,8 @@ std::vector<OrderBookEntry> OrderBook::matchAsksToBids(
     const std::string& product, 
     const std::string& timestamp
 ){
-    // asks = orderbook.asks in this timeframe
     std::vector<OrderBookEntry> asks = getOrders(OrderType::ask, product, timestamp);
-    // bids = orderbook.bids in this timeframe
     std::vector<OrderBookEntry> bids = getOrders(OrderType::bid, product, timestamp);
-
     std::vector<OrderBookEntry> sales;
 
     // sort asks lowest first
@@ -168,50 +165,60 @@ std::vector<OrderBookEntry> OrderBook::matchAsksToBids(
     // sort bids highest first
     std::sort(bids.begin(), bids.end(), compareByPriceDesc);
 
-    for (OrderBookEntry ask : asks) 
+    double amount;
+    OrderType orderType;
+
+    for (OrderBookEntry& ask : asks) 
     {
-        for (OrderBookEntry bid : bids) 
+        for (OrderBookEntry& bid : bids) 
         {
-            if (bid.price >= ask.price) // we have a match
+            if (bid.price >= ask.price && bid.amount > 0 && ask.amount > 0) // we have a match
             {   
-                if (bid.amount == ask.amount) // bid completely clears ask
+                OrderBookEntry sale = OrderBookEntry
                 {
-                    OrderBookEntry sale = OrderBookEntry
-                    {
-                        ask.price, ask.amount, timestamp, product, OrderType::sale
-                    };    
-                    sales.push_back(sale);
-                    bid.amount = 0.0;
-                    ask.amount = 0.0;
-                    break;
-                }; 
+                    ask.price, 0, timestamp, product, OrderType::unknown
+                };
+                if (bid.username == "simuser") 
+                {
+                    sale.username = "simuser";
+                    sale.type = OrderType::bidsale;
+                }
+                if (ask.username == "simuser") 
+                {
+                    sale.username = "simuser";
+                    sale.type = OrderType::asksale;
+                }
                 
-                if (bid.amount > ask.amount) // ask is completely gone slice the bid
+                if (bid.amount < ask.amount) // bid is completely gone, slice the ask
                 {
-                    OrderBookEntry sale = OrderBookEntry
-                    {
-                        ask.price, ask.amount, timestamp, product, OrderType::sale
-                    };    
+                    sale.amount = bid.amount;
+                    sales.push_back(sale);
+                    ask.amount -= bid.amount;
+                    bid.amount = 0;
+                    continue;
+                };
+                
+                if (bid.amount >= ask.amount) // ask is completely gone slice the bid
+                {
+                    sale.amount = ask.amount;    
                     sales.push_back(sale);
                     bid.amount -= ask.amount;
                     ask.amount = 0.0;
                     break;
-                };
-                
-                if (bid.amount < ask.amount) // bid is completely gone, slice the ask
-                {
-                    OrderBookEntry sale = OrderBookEntry
-                    {
-                        ask.price, bid.amount, timestamp, product, OrderType::sale
-                    };    
-                    sales.push_back(sale);
-                    bid.amount = 0;
-                    ask.amount -= bid.amount;
-                    continue;
                 };
             }   
         };
         
     };
     return sales;
+}
+
+std::ostream& operator<<(std::ostream& os, OrderBook orderBook)
+{
+    for (const OrderBookEntry& order : orderBook.orders)
+    {
+        os << order;
+    }
+    os << std::endl;
+    return os;
 }

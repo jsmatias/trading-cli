@@ -29,7 +29,7 @@ bool Wallet::containsCurrency(std::string type, double amount)
     return true;
 }
 
-bool Wallet::canFulfillOrder(OrderBookEntry order)
+bool Wallet::canFulfillOrder(const OrderBookEntry& order)
 {
 
     if (order.type != OrderType::ask && order.type != OrderType::bid)
@@ -59,6 +59,39 @@ bool Wallet::canFulfillOrder(OrderBookEntry order)
     std::cout << " amount: " << amount << std::endl;
     
     return containsCurrency(currency, amount);
+}
+
+void Wallet::processSale(const OrderBookEntry& sale)
+{
+    std::vector<std::string> currencyPair = CSVReader::tokenise(sale.product, "/");
+    std::string incomingCurrency;
+    std::string outgoingCurrency;
+    double incomingAmount;
+    double outgoingAmount;
+
+    std::cout << "Processing sale: ";
+    // if ask
+    if (sale.type == OrderType::asksale)
+    {
+        outgoingCurrency = currencyPair[0];
+        outgoingAmount = sale.amount;
+        incomingCurrency = currencyPair[1];
+        incomingAmount = sale.amount * sale.price;
+        std::cout << "Selling: " << outgoingAmount << " " << outgoingCurrency << std::endl;
+        std::cout << "For: " << incomingAmount << " " << incomingCurrency << std::endl;
+    }
+    // if bid
+    if (sale.type == OrderType::bidsale)
+    {
+        outgoingCurrency = currencyPair[1];
+        outgoingAmount = sale.amount * sale.price;
+        incomingCurrency = currencyPair[0];
+        incomingAmount = sale.amount;
+        std::cout << "Buying: " << incomingAmount << " " << incomingCurrency << std::endl;
+        std::cout << "For: " << outgoingAmount << " " << outgoingCurrency << std::endl;
+    }
+    insertCurrency(incomingCurrency, incomingAmount);
+    removeCurrency(outgoingCurrency, outgoingAmount);
 }
 
 /** generate a string representation of the wallet */

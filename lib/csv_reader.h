@@ -24,6 +24,7 @@ class CSVReader
             std::string amount,
             std::string timestamp,
             std::string product,
-            OrderType orderType
+            OrderType orderType,
+            std::string username
         );
 };

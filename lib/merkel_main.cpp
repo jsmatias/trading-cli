@@ -108,25 +108,39 @@ void MerkelMain::printExchangeStats()
         askEntries = book.getOrders(OrderType::ask, prod, currentTime);
         bidEntries = book.getOrders(OrderType::bid, prod, currentTime);
 
-        std::cout << " ====== Product: " << prod << std::endl;
+        std::sort(askEntries.begin(), askEntries.end(), OrderBook::compareByPriceAsc);
+        std::sort(bidEntries.begin(), bidEntries.end(), OrderBook::compareByPriceDesc);
+
+        std::cout << "==============================                 ==============================" << std::endl;
+        std::cout << "============================== Product: " << prod;
+        std::cout << "==============================" << std::endl;
+        
+        std::cout << "========= ASKS ==========" << std::endl;
         if (!askEntries.empty())
         {
-            minAsk = OrderBook::getLowPrice(askEntries);
             std::cout << "  Asks seen: " << askEntries.size() << std::endl;
+            for (size_t i = 0; i < std::min<size_t>(5, bidEntries.size()); ++i)
+            {   
+                std::cout << askEntries[i];
+            }
+            minAsk = OrderBook::getLowPrice(askEntries);
             std::cout << "  Max ask: " << OrderBook::getHighPrice(askEntries) << std::endl;
             std::cout << "  Min ask: " << minAsk << std::endl;
-            std::cout << "  Close ask: " << OrderBook::getClosePrice(askEntries) << std::endl;
             std::cout << "  SMA-7 ask: " << book.getSimpleMovingAverage(OrderType::ask, prod, currentTime, 7) << std::endl;
         }
         else std::cout << "  No ask prices..." << std::endl;
-
+        
+        std::cout << "========= BIDS ==========" << std::endl;
         if (!bidEntries.empty())
         {
-            maxBid = OrderBook::getHighPrice(bidEntries);
             std::cout << "  Bids seen: " << bidEntries.size() << std::endl;
+            for (size_t i = 0; i < std::min<size_t>(5, bidEntries.size()); ++i)
+            {
+                std::cout << bidEntries[i];
+            }
+            maxBid = OrderBook::getHighPrice(bidEntries);
             std::cout << "  Max bib: " << maxBid << std::endl;
             std::cout << "  Min bid: " << OrderBook::getLowPrice(bidEntries) << std::endl;
-            std::cout << "  Close bid: " << OrderBook::getClosePrice(bidEntries) << std::endl;
             std::cout << "  SMA-7 bid: " << book.getSimpleMovingAverage(OrderType::bid, prod, currentTime, 7) << std::endl;
         }
         else std::cout << "  No bid prices..." << std::endl;
@@ -154,7 +168,8 @@ void MerkelMain::makeAnAsk()
             tokens[2],
             currentTime, 
             tokens[0],
-            OrderType::ask
+            OrderType::ask,
+            "simuser"
         )};
         if (wallet.canFulfillOrder(obe)) 
         {
@@ -175,7 +190,7 @@ void MerkelMain::makeAnAsk()
 }
 void MerkelMain::makeABid()
 {
-    std::cout << "Make an bid - enter the amount: product, price, amount, eg ETH/BTC,200,0.5" << std::endl;
+    std::cout << "Make a bid - enter the amount: product, price, amount, eg ETH/BTC,200,0.5" << std::endl;
     std::string input;
     std::getline(std::cin, input);
 
@@ -193,17 +208,16 @@ void MerkelMain::makeABid()
             tokens[2],
             currentTime, 
             tokens[0],
-            OrderType::bid
+            OrderType::bid,
+            "simuser"
         )};
         if (wallet.canFulfillOrder(obe)) 
         {
             std::cout << "Wallet has enough funds." << std::endl;
             book.insertOrder(obe);
         }
-        else 
-        {
-            std::cout << "Wallet has insufficient funds." << std::endl;
-        }
+        else std::cout << "Wallet has insufficient funds." << std::endl;
+        
     }
     catch(const std::exception& e)
     {
@@ -225,12 +239,12 @@ void MerkelMain::goToNextTimeFrame()
     for (const std::string& p : book.getKnownProducts())
     {
         sales = book.matchAsksToBids(p, currentTime);
-        std::cout << "Sales: " << sales.size() << std::endl;
+        if (sales.size() > 0) std::cout << "Sales: " << sales.size() << std::endl;
         for (const OrderBookEntry& sale : sales) 
         {
-            std::cout << "Sale price: " << sale.price << " amount " << sale.amount << std::endl;
+            std::cout << "Sale price: " << sale.price << " amount " << sale.amount << " " << sale.username << std::endl;
+            if (sale.username == "simuser") wallet.processSale(sale);
         };
     };
-    
     currentTime = book.getNextTime(currentTime);
 }

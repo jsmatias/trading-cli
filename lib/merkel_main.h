@@ -22,7 +22,7 @@ class MerkelMain
         void goToNextTimeFrame();
         int getUserChoice();
         
-        OrderBook book{"./data/test.csv"};
+        OrderBook book{"./data/book_of_orders.csv"};
         Wallet wallet;
         std::string currentTime;
 };
